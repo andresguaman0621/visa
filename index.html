@@ -10,6 +10,8 @@
         
         body {
             font-family: 'Poppins', sans-serif;
+            position: relative;
+            overflow-x: hidden;
         }
         
         .fade-in {
@@ -60,9 +62,197 @@
         .card-shadow {
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
+        
+        /* Toggle Switch Styles */
+        .celebration-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .celebration-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.2);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: #cbd5e1;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(24px);
+        }
+        
+        /* Celebration Mode Styles */
+        .celebration-bg {
+            transition: all 0.5s ease;
+        }
+        
+        body.celebration-mode {
+            background: linear-gradient(135deg, #fae8ff 0%, #ddd6fe 50%, #fbcfe8 100%);
+        }
+        
+        /* Balloon Styles */
+        .balloon {
+            position: fixed;
+            width: 50px;
+            height: 60px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            bottom: -100px;
+            animation: floatUp 8s ease-in infinite;
+            z-index: 999;
+        }
+        
+        .balloon::before {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 40px;
+            background: rgba(0,0,0,0.2);
+            left: 50%;
+            top: 100%;
+            transform: translateX(-50%);
+        }
+        
+        .balloon::after {
+            content: '▼';
+            position: absolute;
+            color: inherit;
+            font-size: 8px;
+            left: 50%;
+            top: 100%;
+            transform: translateX(-50%) translateY(35px);
+        }
+        
+        @keyframes floatUp {
+            0% {
+                bottom: -100px;
+                transform: translateX(0) rotate(0deg);
+            }
+            50% {
+                transform: translateX(var(--sway, 20px)) rotate(10deg);
+            }
+            100% {
+                bottom: 110vh;
+                transform: translateX(0) rotate(-10deg);
+            }
+        }
+        
+        /* Confetti Styles */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            animation: confettiFall 4s linear infinite;
+            z-index: 999;
+        }
+        
+        @keyframes confettiFall {
+            0% {
+                top: -10px;
+                transform: translateX(0) rotateZ(0deg);
+            }
+            100% {
+                top: 110vh;
+                transform: translateX(var(--drift, 100px)) rotateZ(360deg);
+            }
+        }
+        
+        /* Sparkle Animation */
+        .sparkle-element {
+            position: fixed;
+            font-size: 24px;
+            animation: sparkleFloat 3s ease-in-out infinite;
+            z-index: 999;
+            pointer-events: none;
+        }
+        
+        @keyframes sparkleFloat {
+            0%, 100% {
+                transform: translateY(0) scale(0.5);
+                opacity: 0;
+            }
+            50% {
+                transform: translateY(-30px) scale(1);
+                opacity: 1;
+            }
+        }
+        
+        /* Celebration Title Animation */
+        .celebration-title {
+            animation: titlePulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes titlePulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        
+        /* Celebration Card Glow */
+        .celebration-mode .card-shadow {
+            box-shadow: 0 4px 30px rgba(236, 72, 153, 0.3);
+            border: 2px solid rgba(236, 72, 153, 0.2);
+        }
+        
+        /* Hide celebration elements by default */
+        .celebration-elements {
+            display: none;
+        }
+        
+        body.celebration-mode .celebration-elements {
+            display: block;
+        }
     </style>
 </head>
-<body class="bg-purple-50 min-h-screen">
+<body class="bg-purple-50 min-h-screen celebration-bg">
+    <!-- Celebration Toggle -->
+    <div class="celebration-toggle" id="celebrationToggle">
+        <span class="text-sm font-semibold text-gray-700" id="toggleLabel">Modo Normal</span>
+        <div class="toggle-switch" id="toggleSwitch">
+            <div class="toggle-slider"></div>
+        </div>
+        <span class="text-lg">🎉</span>
+    </div>
+    
+    <!-- Celebration Elements Container -->
+    <div id="celebrationContainer" class="celebration-elements"></div>
+    
     <div class="container mx-auto px-4 py-8 max-w-4xl">
         <!-- Header -->
         <div class="text-center mb-12 fade-in">
@@ -71,10 +261,10 @@
                     <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
                 </svg>
             </div>
-            <h1 class="text-4xl md:text-5xl font-semibold text-purple-800 mb-4">
+            <h1 class="text-4xl md:text-5xl font-semibold text-purple-800 mb-4" id="mainTitle">
                 Tu Nueva Oportunidad
             </h1>
-            <p class="text-lg text-purple-600 max-w-2xl mx-auto">
+            <p class="text-lg text-purple-600 max-w-2xl mx-auto" id="mainSubtitle">
                 Cada paso que das es una muestra de tu fortaleza. Esta vez es diferente, y no estás sola en este camino.
             </p>
         </div>
@@ -98,7 +288,7 @@
                 
                 <!-- Button -->
                 <button id="new-phrase-btn" class="button-hover bg-purple-400 hover:bg-purple-500 text-white font-medium py-4 px-8 rounded-full text-lg transition-all duration-300 inline-flex items-center space-x-2">
-                    <span>Nueva frase de ánimo</span>
+                    <span id="buttonText">Nueva frase de ánimo</span>
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                     </svg>
@@ -141,7 +331,7 @@
 
         <!-- Footer Message -->
         <div class="text-center bg-yellow-50 rounded-2xl p-6 fade-in">
-            <p class="text-yellow-800 font-medium">
+            <p class="text-yellow-800 font-medium" id="footerMessage">
                 🌟 Recuerda: La incertidumbre es normal, pero tu valentía es extraordinaria 🌟
             </p>
         </div>
@@ -171,43 +361,187 @@
             "Cada día que trabajas en esto, te conviertes en candidata ideal"
         ];
 
+        const celebrationPhrases = [
+            "¡LO LOGRASTE! Tu esfuerzo valió la pena 🎉",
+            "¡Tu visa fue aprobada! Sabía que lo conseguirías ✨",
+            "¡Eres increíble! Todo tu trabajo dio frutos 💜",
+            "¡Lo hiciste! Estoy tan orgulloso de ti 🌟",
+            "¡Aprobada! Siempre supe que eras capaz 🎊",
+            "¡Lo conseguiste! Un sueño más se hizo realidad ⭐",
+            "¡Mi amor! Cada esfuerzo valió absolutamente la pena 🏆",
+            "¡Your visa has been approved! Las cosas salieron bien porque te lo merecías 🎈"
+        ];
+
         let currentPhraseIndex = 0;
+        let isCelebrationMode = false;
         const phraseElement = document.getElementById('motivational-phrase');
         const button = document.getElementById('new-phrase-btn');
 
         button.addEventListener('click', function() {
-            // Add animation classes
             phraseElement.style.opacity = '0';
             phraseElement.style.transform = 'translateY(20px)';
             
             setTimeout(() => {
-                // Change phrase
-                currentPhraseIndex = (currentPhraseIndex + 1) % phrases.length;
-                phraseElement.textContent = phrases[currentPhraseIndex];
+                currentPhraseIndex = (currentPhraseIndex + 1) % (isCelebrationMode ? celebrationPhrases.length : phrases.length);
+                phraseElement.textContent = isCelebrationMode ? celebrationPhrases[currentPhraseIndex] : phrases[currentPhraseIndex];
                 
-                // Animate back in
                 phraseElement.style.opacity = '1';
                 phraseElement.style.transform = 'translateY(0)';
             }, 300);
 
-            // Button animation
             button.style.transform = 'scale(0.95)';
             setTimeout(() => {
                 button.style.transform = 'scale(1)';
             }, 150);
         });
 
-        // Smooth transitions for phrase changes
         phraseElement.style.transition = 'all 0.3s ease-in-out';
         button.style.transition = 'all 0.15s ease-in-out';
 
-        // Add floating animation to some elements
         document.addEventListener('DOMContentLoaded', function() {
             const floatingElements = document.querySelectorAll('.float');
             floatingElements.forEach((el, index) => {
                 el.style.animationDelay = `${index * 0.5}s`;
             });
         });
+
+        // Celebration Mode Toggle
+        const celebrationToggle = document.getElementById('celebrationToggle');
+        const toggleSwitch = document.getElementById('toggleSwitch');
+        const toggleLabel = document.getElementById('toggleLabel');
+        const mainTitle = document.getElementById('mainTitle');
+        const mainSubtitle = document.getElementById('mainSubtitle');
+        const buttonText = document.getElementById('buttonText');
+        const footerMessage = document.getElementById('footerMessage');
+        const celebrationContainer = document.getElementById('celebrationContainer');
+        
+        let celebrationInterval = null;
+
+        celebrationToggle.addEventListener('click', function() {
+            isCelebrationMode = !isCelebrationMode;
+            toggleSwitch.classList.toggle('active');
+            document.body.classList.toggle('celebration-mode');
+            
+            if (isCelebrationMode) {
+                activateCelebrationMode();
+            } else {
+                deactivateCelebrationMode();
+            }
+        });
+
+        function activateCelebrationMode() {
+            // Update texts
+            toggleLabel.textContent = 'Modo Celebración';
+            mainTitle.textContent = '¡Lo lograste!';
+            mainTitle.classList.add('celebration-title');
+            mainSubtitle.textContent = 'Tu visa ha sido aprobada. Sabía que eras capaz de lograrlo. ¡Estoy tan orgulloso de ti! 💜';
+            buttonText.textContent = 'Otro mensaje de celebración';
+            footerMessage.textContent = '🎉 ¡Tu sueño se hizo realidad! Las cosas buenas llegan a quienes trabajan por ellas 🎉';
+            
+            // Change to celebration phrase
+            currentPhraseIndex = 0;
+            phraseElement.textContent = celebrationPhrases[0];
+            
+            // Start celebration animations
+            startCelebrationAnimations();
+        }
+
+        function deactivateCelebrationMode() {
+            // Restore original texts
+            toggleLabel.textContent = 'Modo Normal';
+            mainTitle.textContent = 'Tu Nueva Oportunidad';
+            mainTitle.classList.remove('celebration-title');
+            mainSubtitle.textContent = 'Cada paso que das es una muestra de tu fortaleza. Esta vez es diferente, y no estás sola en este camino.';
+            buttonText.textContent = 'Nueva frase de ánimo';
+            footerMessage.textContent = '🌟 Recuerda: La incertidumbre es normal, pero tu valentía es extraordinaria 🌟';
+            
+            // Restore original phrase
+            currentPhraseIndex = 0;
+            phraseElement.textContent = phrases[0];
+            
+            // Stop celebration animations
+            stopCelebrationAnimations();
+        }
+
+        function startCelebrationAnimations() {
+            // Create initial batch of elements
+            createBalloons();
+            createConfetti();
+            createSparkles();
+            
+            // Continue creating elements periodically
+            celebrationInterval = setInterval(() => {
+                createBalloons();
+                createConfetti();
+                createSparkles();
+            }, 3000);
+        }
+
+        function stopCelebrationAnimations() {
+            if (celebrationInterval) {
+                clearInterval(celebrationInterval);
+                celebrationInterval = null;
+            }
+            celebrationContainer.innerHTML = '';
+        }
+
+        function createBalloons() {
+            const colors = ['#ec4899', '#8b5cf6', '#f59e0b', '#10b981', '#3b82f6', '#ef4444'];
+            
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const balloon = document.createElement('div');
+                    balloon.className = 'balloon';
+                    balloon.style.left = Math.random() * 100 + '%';
+                    balloon.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    balloon.style.animationDelay = Math.random() * 2 + 's';
+                    balloon.style.animationDuration = (6 + Math.random() * 4) + 's';
+                    balloon.style.setProperty('--sway', (Math.random() - 0.5) * 100 + 'px');
+                    celebrationContainer.appendChild(balloon);
+                    
+                    setTimeout(() => balloon.remove(), 10000);
+                }, i * 500);
+            }
+        }
+
+        function createConfetti() {
+            const colors = ['#ec4899', '#8b5cf6', '#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#fbbf24'];
+            const shapes = ['circle', 'square'];
+            
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = shapes[Math.floor(Math.random() * shapes.length)] === 'circle' ? '50%' : '0';
+                    confetti.style.animationDelay = Math.random() * 2 + 's';
+                    confetti.style.animationDuration = (3 + Math.random() * 2) + 's';
+                    confetti.style.setProperty('--drift', (Math.random() - 0.5) * 200 + 'px');
+                    celebrationContainer.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 6000);
+                }, i * 100);
+            }
+        }
+
+        function createSparkles() {
+            const sparkles = ['✨', '⭐', '💫', '🌟', '💖', '🎊', '🎉', '🎈'];
+            
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle-element';
+                    sparkle.textContent = sparkles[Math.floor(Math.random() * sparkles.length)];
+                    sparkle.style.left = Math.random() * 100 + '%';
+                    sparkle.style.top = Math.random() * 100 + '%';
+                    sparkle.style.animationDelay = Math.random() * 1 + 's';
+                    celebrationContainer.appendChild(sparkle);
+                    
+                    setTimeout(() => sparkle.remove(), 4000);
+                }, i * 600);
+            }
+        }
     </script>
 </body>
 </html>
